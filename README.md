@@ -38,7 +38,9 @@ When a seller wants to upload a new product, they don't need to manually fill ou
 **Image Interception:** The frontend converts the image to Base64 and sends it to the /ai/chat endpoint via the image_data payload.
 Groq Bypass (chat_service.py): Because Groq's current models are text-only, the backend immediately detects the image payload and bypasses the standard RAG/Groq pipeline entirely.
 **Google Gemini Vision API:** The backend routes the image alongside a strict JSON-schema prompt to the Gemini 2.5 Flash API.
+
 **Zero-Input Data Extraction:** Gemini acts as a visual expert, analyzing the image to determine the category, material, style, color, occasion, and even drafting a catchy description. It returns this strictly formatted as a JSON object.
+
 **Form Auto-Fill:** The backend encodes this JSON and emits a special action tag: [ACTION:PREFILL_PRODUCT_UPLOAD:{...encoded_json...}]. The frontend intercepts this tag and instantly populates the entire product upload form, requiring zero text input from the seller.
 External APIs & Their Purpose
 The backend utilizes a, multi-layered API architecture to ensure high availability and intelligence:
@@ -48,6 +50,7 @@ It maintains a pool of multiple API keys (multiple free Groq Api's gsk_ which i 
 For every request, it attempts to use the most capable primary model first (e.g., llama-3.3-70b-versatile).
 If a 429 Rate Limit is hit, it doesn't fail; it seamlessly shifts to the next API key in the pool, and climbs down to lighter fallback models to ensure the user always gets a response.
 **DeepSeek / Zen AI (Fallback LLMs):** They were supposed to act as fallback models but for some reason these Apis didnt work for me.
+
 **Cohere & Google Gemini (Embeddings):** Used to generate vector embeddings for the product catalog. Cohere is prioritized, falling back to Gemini if rate limited.
 **Google Gemini Vision API:** Integrated to allow sellers to upload product images. The AI analyzes the image, extracts details (color, style, category), and automatically pre-fills the product upload schema.
 **Open-Meteo API (Tool Calling)**: A weather API used dynamically by the agent. If a user asks "What should I wear in Lahore today?", the agent calls this tool to fetch real time temperatures and recommends appropriate seasonal clothing.
